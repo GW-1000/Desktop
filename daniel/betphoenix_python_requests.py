@@ -10,7 +10,7 @@ async def response_handler(ws):
         if msg.type == aiohttp.WSMsgType.TEXT:
             response_data = json.loads(msg.data)
             if "action" in response_data and "marker" in response_data:
-                if response_data["marker"] == "event":
+                if response_data["marker"] == "sport":
                     print(f"Received: {response_data}")
                     return response_data
         elif msg.type == aiohttp.WSMsgType.CLOSED:
@@ -65,10 +65,10 @@ async def connect_to_websocket():
                             break
 
             # create a semaphore to limit the number of requests
-            semaphore = asyncio.Semaphore(375)  # 375 request will be made at once after each batch
+            semaphore = asyncio.Semaphore(300)  # 300 request will be made at once after each batch
             tasks = []
             for evt_id in ids:
-                match_req = {"action": "events", "level": 2, "id": evt_id, "filter": {"notempty": True}, "marker": "event"}
+                match_req = {"action": "events", "level": 3, "id": evt_id, "filter": {"notempty": True}, "marker": "sport"}
                 tasks.append(send_match_request(semaphore, match_req))
 
             results = await asyncio.gather(*tasks)  # this runs all the requests at once and waits for all responses
