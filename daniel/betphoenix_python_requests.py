@@ -21,23 +21,25 @@ async def response_handler(ws):
             return None
 
 
-# function to send 1 match request
+# function to send individual match request
 async def send_match_request(semaphore, match_request):
     async with semaphore:
         async with aiohttp.ClientSession() as session:
-            async with session.ws_connect('wss://wss2.betphoenix.info/ws/') as ws:
-                await ws.send_json({"token": "demo", "lang": "HT", "tree": "false", "hot": "false"})
-                await ws.send_json(match_request)
+            try:
+                async with session.ws_connect('wss://wss2.betphoenix.info/ws/', timeout=61) as ws:
+                    await ws.send_json({"token": "demo", "lang": "HT", "tree": "false", "hot": "false"})
+                    await ws.send_json(match_request)
 
-                try:
-                    msg = await asyncio.wait_for(response_handler(ws), timeout=21)
-                except asyncio.TimeoutError:
-                    print(f"Timeout: No response received for the match request within {21} seconds")
-                    await ws.close()
-                    return None
-                if msg:
-                    print("full")
-                    return msg
+                    try:
+                        msg = await asyncio.wait_for(response_handler(ws), timeout=120)
+                    except asyncio.TimeoutError:
+                        print(f"Timeout: No response received for the match request within {120} seconds")
+                        await ws.close()
+                        return None
+                    if msg:
+                        return msg
+            except aiohttp.client_exceptions.ConnectionTimeoutError:
+                return None
 
 
 async def connect_to_websocket():
