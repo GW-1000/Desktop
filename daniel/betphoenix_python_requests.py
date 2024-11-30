@@ -50,7 +50,7 @@ async def connect_to_websocket():
             ids = []  # initialise a list to store tournament ids
 
             async for msg in ws:  # a loop that runs as long as the connection is up
-                if msg.type == aiohttp.WSMsgType.TEXT:  # check if the response is the tournaments ids
+                if msg.type == aiohttp.WSMsgType.TEXT:  # check if the response is the event ids
                     response_data = json.loads(msg.data)  # Convert string to dictionary
 
                     if "action" in response_data and "marker" in response_data:  # check if its the target message
